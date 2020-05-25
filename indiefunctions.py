@@ -66,91 +66,19 @@ def manualAdd():
 def igdbPage(browser, delay):
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
     pageTitles = []
-    try:
-        titleOne = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                        .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content-page"]
-                        /div/div/div/div/div[3]/div[2]/a'''))).text
-        pageTitles.append(titleOne)                
-    except StaleElementReferenceException:
-        titleOne = 'e'
-        pageTitles.append(titleOne)
-    try:
-        titleTwo = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[4]/div[2]/a'''))).text
-        pageTitles.append(titleTwo)
-    except StaleElementReferenceException:
-        titleTwo = 'e'
-        pageTitles.append(titleTwo)
-    try:
-        titleThree = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[5]/div[2]/a'''))).text
-        pageTitles.append(titleThree)
-    except StaleElementReferenceException:
-        titleThree = 'e'
-        pageTitles.append(titleThree)
-    try:
-        titleFour = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[6]/div[2]/a'''))).text
-        pageTitles.append(titleFour)
-    except StaleElementReferenceException:
-        titleFour = 'e'
-        pageTitles.append(titleFour)
-    try:
-        titleFive = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[7]/div[2]/a'''))).text
-        pageTitles.append(titleFive)
-    except StaleElementReferenceException:
-        titleFive = 'e'                       
-        pageTitles.append(titleFive)
-    try:
-        titleSix = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[8]/div[2]/a'''))).text
-        pageTitles.append(titleSix)
-    except StaleElementReferenceException:
-        titleSix = 'e'                        
-        pageTitles.append(titleSix)
-    try:
-        titleSeven = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[9]/div[2]/a'''))).text
-        pageTitles.append(titleSeven)
-    except StaleElementReferenceException:
-        titleSeven = 'e'
-        pageTitles.append(titleSeven)
-    try:
-        titleEight = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[10]/div[2]/a'''))).text
-        pageTitles.append(titleEight)
-    except StaleElementReferenceException:
-        titleEight = 'e'
-        pageTitles.append(titleEight)
-    try:
-        titleNine = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[11]/div[2]/a'''))).text
-        pageTitles.append(titleNine)
-    except StaleElementReferenceException:
-        titleNine = 'e'
-        pageTitles.append(titleNine)
-    try:
-        titleTen = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                            -page"]/div/div/div/div/div[12]/div[2]/a'''))).text
-        pageTitles.append(titleTen)
-    except StaleElementReferenceException:
-        titleTen = 'e'
-        pageTitles.append(titleTen)
-    print(pageTitles)
-
+    for i in range(10)
+        try:
+            xpath = '//*[@id="content-page"]/div/div/div/div/div['+str(i+2)+']/div[2]/a'
+            title = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
+                            .until(EC.presence_of_element_located((By.XPATH, '''xpath'''))).text
+            pageTitles.append(title)                
+        except StaleElementReferenceException:
+            title = 'e'
+            pageTitles.append(title)
+        except TimeoutException:
+            title = 'e'
+            pageTitles.append(title)
     return(pageTitles)
-
-#TODO add the sorting function
 
 def igdbScrape(browser, delay, ss, skip):
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException )
@@ -174,7 +102,6 @@ def igdbScrape(browser, delay, ss, skip):
             browser.execute_script("arguments[0].click();", next)
         except TimeoutException:
             break
-    
     return(titles)
 
 def updatePrice(gameTitle, browser, delay):
@@ -182,7 +109,7 @@ def updatePrice(gameTitle, browser, delay):
         article, wordmatch, *nomatch = gameTitle.split(' ')
     except ValueError:
         wordmatch, *nomatch = gameTitle.split()
-    price = 'unknown'
+    price = '-'
     gameTitlere = urllib.parse.quote(gameTitle)
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException)
     browser.get('https://store.playstation.com/en-us/grid/search-game/1?query=' + gameTitlere)
@@ -193,10 +120,8 @@ def updatePrice(gameTitle, browser, delay):
         price = re.sub(r'[^0-9.]+', '', priceRaw)
         print(price)
     except NoSuchElementException:
-        print('NoSuchElement')
         pass
     except TimeoutException:
-        print('Timeout')
         pass
     browser.get('https://nintendo.com/search/#category=all&page=1&query=' + gameTitlere)
     try:
@@ -204,16 +129,14 @@ def updatePrice(gameTitle, browser, delay):
                                 .until(EC.presence_of_element_located((By.CLASS_NAME,'title')))
         browser.execute_script("arguments[0].click();", title)
         url = browser.current_url
-        print(wordmatch, url)
         if wordmatch.lower() not in url.lower():
-            print('nomatch')
+            pass
         else:
             WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                 .until(EC.text_to_be_present_in_element((By.XPATH,'//*[@id="purchase-options"]/div[1]/span[1]'), '$'))
             nintendoPrice = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                 .until(EC.presence_of_element_located((By.XPATH,'//*[@id="purchase-options"]/div[1]/span[1]'))).text
             nintendoPrice = re.sub(r'[^0-9.]+', '', nintendoPrice)
-            print(nintendoPrice + 'sale')
             if price == 'unknown' or nintendoPrice < price:
                 price = nintendoPrice
                 return(price)
@@ -224,17 +147,12 @@ def updatePrice(gameTitle, browser, delay):
             nintendoPrice = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                 .until(EC.presence_of_element_located((By.XPATH,'//*[@id="purchase-options"]/div[1]/span[1]'))).text
             nintendoPrice = re.sub(r'[^0-9.]+', '', nintendoPrice)
-            print(nintendoPrice + 'sale')
             if price == 'unknown' or nintendoPrice < price:
                 price = nintendoPrice
                 return(price)
         except TimeoutException:
-            print('notrigger')
+            pass
     return(price)
-    
-
-
-
 
 def listUpdate(unrefined, refined, newGames, sheet):
     for i in newGames:
@@ -248,95 +166,38 @@ def updateGenre(gameTitle, browser, delay):
     gameTitle = gameTitle.replace(' ','-').lower()
     browser.get('https://igdb.com/games/' + gameTitle)
     finalgenre = ''
-    try:
-        genre = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                        .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="content
-                        -page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[1]/a[1]'''))).text
-        finalgenre = genre
-    except NoSuchElementException:
-        pass
-    except StaleElementReferenceException:
-        pass
-    except TimeoutException:
-        pass
-    try:
-        genre2 = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div/div[2]
-        /div[2]/div[2]/div[2]/p[1]/a[2]''').text
-        finalgenre = finalgenre + ', ' + genre2
-    except NoSuchElementException:
-        pass
-    except StaleElementReferenceException:
-        pass
-    try:
-        genre3 = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div/div[2]
-        /div[2]/div[2]/div[2]/p[1]/a[3]''').text
-        finalgenre = finalgenre + ', ' + genre3
-    except NoSuchElementException:
-        pass
-    except StaleElementReferenceException:
-        pass
-    else:
-        return(finalgenre)
+    for i in range(10)
+        try:
+            xpath = '//*[@id="content-page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[1]/a[' + i + ']'
+            genre = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
+                            .until(EC.presence_of_element_located((By.XPATH, '''xpath'''))).text
+            finalgenre = finalgenre + ' ' + genre
+        except NoSuchElementException:
+            pass
+        except StaleElementReferenceException:
+            pass
+        except TimeoutException:
+            pass
+        else:
+            return(finalgenre)
 
 def updateSystems(browser):
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
     finalSystems = ''
-    while True:
+    for i in range(10):
         try:
-            systemOne = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div/
+            xpath = '//*[@id="content-page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[2]/a[' + i + ']'
+            system = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div/
             div[2]/div[2]/div[2]/div[2]/p[2]/a[1]''').text
-            finalSystems = systemOne
+            finalSystems = finalSystems + ' ' system
         except NoSuchElementException:
-            break
+            pass
         except StaleElementReferenceException:
             pass
-        try:
-            systemTwo = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div/
-            div[2]/div[2]/div[2]/div[2]/p[2]/a[2]''').text
-            finalSystems = finalSystems + ', ' + systemTwo
-        except NoSuchElementException:
-            break
-        except StaleElementReferenceException:
-            pass
-        try:
-            systemThree = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/
-            div/div[2]/div[2]/div[2]/div[2]/p[2]/a[3]''').text
-            finalSystems = finalSystems + ', ' + systemThree
-        except NoSuchElementException:
-            break
-        except StaleElementReferenceException:
-            pass
-        try:
-            systemFour = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div
-            /div[2]/div[2]/div[2]/div[2]/p[2]/a[4]''').text
-            finalSystems = finalSystems + ', ' + systemFour
-        except NoSuchElementException:
-            break
-        except StaleElementReferenceException:
-            pass
-        try:
-            systemFive = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div
-            /div[2]/div[2]/div[2]/div[2]/p[2]/a[5]''').text
-            finalSystems = finalSystems + ', ' + systemFive
-        except NoSuchElementException:
-            break
-        except StaleElementReferenceException:
-            pass
-        try:
-            systemSix = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div
-            /div[2]/div[2]/div[2]/div[2]/p[2]/a[6]''').text
-            finalSystems = finalSystems + ', ' + systemSix
-            break
-        except NoSuchElementException:
-            break
-        except StaleElementReferenceException:
-            break
     return(finalSystems)
 
-
-
 def updateTrailer(gameTitle, browser, delay):
-    ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
+    ignored_exceptions = (NoSuchElementException,StaleElementReferenceException)
     gameTitle = re.sub(r'[^A-Za-z0-9 ]+', '', gameTitle)
     gameTitle = gameTitle.replace(' ','-').lower()
     browser.get('https://youtube.com/results?search_query=' + gameTitle + '+trailer')
@@ -367,8 +228,7 @@ def updatePlaytime(gameTitle, browser, delay):
             elem3 = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                             .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="global_site"]/div[2]
                             /div/div[2]/div[1]/ul/li[1]/div'''))).text
-        hltbRAW = elem3
-        play = re.sub(r'[^0-9½]+', '', hltbRAW)
+        play = re.sub(r'[^0-9½]+', '', elem3)
         play = play.replace('½','.5')
     except TimeoutException:
         return('-')
@@ -388,9 +248,8 @@ def updateTubeStats(gameTitle, browser, delay):
                             div/ytd-section-list-renderer/div[2]/ytd-item-section-renderer/div[3]/
                             ytd-video-renderer[11]/div[1]/div/div[1]/div/h3/a''')))
     except TimeoutException:
-        return('playlists')
+        return('-')
     title = title.get_attribute('aria-label')
-    print(title)
     try:
         views = title.split('second', 1)[1]
     except IndexError:
@@ -408,13 +267,11 @@ def updateRedditStats(gameTitle, redditTitle, browser, delay):
         article, wordmatch, *nomatch = gameTitle.split(' ')
     except ValueError:
         wordmatch, *nomatch = gameTitle.split()
-    print(wordmatch, nomatch)
     googleSub = '-'
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
     gameTitlere = re.sub(r'[^A-Za-z0-9 ]+', '', gameTitle)
     gameTitlere = gameTitle.replace(' ','').lower()
     browser.get('https://subredditstats.com/r/' + gameTitlere)
-    time.sleep(2)
     try:
         sub = WebDriverWait(browser, delay ,ignored_exceptions=ignored_exceptions)\
                         .until(EC.presence_of_element_located((By.XPATH, '''/html/body/pre'''))).text
@@ -434,7 +291,6 @@ def updateRedditStats(gameTitle, redditTitle, browser, delay):
             googleSub = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                         .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="rso"]/div[1]/div/div[1]/a/div/cite'''))).text
             googleSub = googleSub.split(' › ',2)[1]
-            print(googleSub)
             if wordmatch not in googleSub:
                 return('-', "right sub?  -" + googleSub)
             browser.get('https://subredditstats.com/r/' + googleSub)
@@ -560,18 +416,6 @@ def finalScore(refined):
         row[10] = finalScore
         print(finalScore)
     refined.updateRows(rows)
-        
-
-
-
-        
-    
-    
-
-
-#TODO updatPrice
-
-#TODO updateKeywords
 
 
     
