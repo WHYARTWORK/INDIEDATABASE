@@ -25,17 +25,32 @@ def updateTwitch(gameTitle, browser, delay):
     browser.get('https://twitch.tv/directory/game/' + gameTitlere)
     try:
         followers = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                        .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="root"]/div/
-                        div[2]/div/main/div[1]/div[3]/div/div/div/div[1]/div[2]/div/div[2]/div[2]
-                        /div[1]/p/strong'''))).text
+                        .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="root"]
+                        /div/div[2]/div/main/div[1]/div[3]/div/div/div/div[1]/div[2]/div/div
+                        [2]/div[2]/div[3]/p/strong'''))).text
         if 'K' in followers:
             followers = re.sub(r'[^0-9.]+', '', followers)
             followers = float(followers)*1000
             return(followers)
+        elif 'M' in followers:
+            followers = re.sub(r'[^0-9.]+', '', followers)
+            followers = float(followers)*1000000
         else:
             return(float(followers))
     except TimeoutException:
-        return('-')
+        try:
+            followers = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
+                            .until(EC.presence_of_element_located((By.XPATH, '''//*[@id="root"]/div/
+                            div[2]/div/main/div[1]/div[3]/div/div/div/div[1]/div[2]/div/div[2]/div[2]
+                            /div[1]/p/strong'''))).text
+            if 'K' in followers:
+                followers = re.sub(r'[^0-9.]+', '', followers)
+                followers = float(followers)*1000
+                return(followers)
+            else:
+                return(float(followers))
+        except TimeoutException:
+            return('-')
 
 def refine(unrefined, refined):
     rowsOne = unrefined.getRows()
@@ -45,7 +60,10 @@ def refine(unrefined, refined):
             rowsTwo.append(row)
             rowsOne.remove(row)
         elif 'PlayStation 4' in row[9]:
-            rowsTwo.appen(row)
+            rowsTwo.append(row)
+            rowsOne.remove(row)
+        elif 'PlayStation Network' in row[9]:
+            rowsTwo.append(row)
             rowsOne.remove(row)
     unrefined.updateRows(rowsOne)
     refined.updateRows(rowsTwo)
@@ -66,9 +84,9 @@ def manualAdd():
 def igdbPage(browser, delay):
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
     pageTitles = []
-    for i in range(10)
+    for i in range(10):
         try:
-            xpath = '//*[@id="content-page"]/div/div/div/div/div['+str(i+2)+']/div[2]/a'
+            xpath = '//*[@id="content-page"]/div/div/div/div/div['+ str(i+2) +']/div[2]/a'
             title = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                             .until(EC.presence_of_element_located((By.XPATH, '''xpath'''))).text
             pageTitles.append(title)                
@@ -91,11 +109,11 @@ def igdbScrape(browser, delay, ss, skip):
         time.sleep(.5)
     titles = []
     ss.refresh()
-    sheet = ss[0]
-    currentGames = sheet.getColumn(1)
+    unrefined = ss[0]
+    currentGames = unrefined.getColumn(1)
     while True:
         newtitles = igdbPage(browser, delay)
-        listUpdate(currentGames, newtitles, sheet)
+        listUpdate(currentGames, newtitles, unrefined)
         try:
             next = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
                         .until(EC.presence_of_element_located((By.CLASS_NAME, 'next ')))
@@ -154,11 +172,14 @@ def updatePrice(gameTitle, browser, delay):
             pass
     return(price)
 
-def listUpdate(unrefined, refined, newGames, sheet):
-    for i in newGames:
-        if i not in unrefined and i not in refined:
-            unrefined.append(i)
-    sheet.updateColumn(1, unrefined)
+def listUpdate(unrefinedlist, refinedlist, newGameslist, unrefined):
+    for i in newGameslist:
+        if i not in unrefinedlist and i not in refinedlist:
+            unrefinedlist.append(i)
+            newGameslist.remove(i)
+    unrefined.updateColumn(1, unrefinedlist)
+    return(newGameslist)
+
 
 def updateGenre(gameTitle, browser, delay):
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
@@ -166,34 +187,36 @@ def updateGenre(gameTitle, browser, delay):
     gameTitle = gameTitle.replace(' ','-').lower()
     browser.get('https://igdb.com/games/' + gameTitle)
     finalgenre = ''
-    for i in range(10)
+    for i in range(10):
         try:
-            xpath = '//*[@id="content-page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[1]/a[' + i + ']'
+            xpath = '//*[@id="content-page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[1]/a[' + str(i) + ']'
             genre = WebDriverWait(browser, delay,ignored_exceptions=ignored_exceptions)\
-                            .until(EC.presence_of_element_located((By.XPATH, '''xpath'''))).text
-            finalgenre = finalgenre + ' ' + genre
+                            .until(EC.presence_of_element_located((By.XPATH, xpath))).text
+            finalgenre += ' '
+            finalgenre += genre
+            print(finalgenre)
         except NoSuchElementException:
             pass
         except StaleElementReferenceException:
             pass
         except TimeoutException:
             pass
-        else:
-            return(finalgenre)
+    return(finalgenre)
 
 def updateSystems(browser):
     ignored_exceptions = (NoSuchElementException,StaleElementReferenceException,)
     finalSystems = ''
     for i in range(10):
         try:
-            xpath = '//*[@id="content-page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[2]/a[' + i + ']'
-            system = browser.find_element_by_xpath('''//*[@id="content-page"]/div[1]/div/
-            div[2]/div[2]/div[2]/div[2]/p[2]/a[1]''').text
-            finalSystems = finalSystems + ' ' system
+            xpath = '//*[@id="content-page"]/div[1]/div/div[2]/div[2]/div[2]/div[2]/p[2]/a[' + str(i) + ']'
+            system = browser.find_element_by_xpath(xpath).text
+            finalSystems += ' ' + system
+            print(finalSystems)
         except NoSuchElementException:
             pass
         except StaleElementReferenceException:
             pass
+    print(finalSystems)
     return(finalSystems)
 
 def updateTrailer(gameTitle, browser, delay):
@@ -257,7 +280,11 @@ def updateTubeStats(gameTitle, browser, delay):
             views = title.split('minute', 1)[1]
         except IndexError:
             views = title.split('hour', 1)[1]
-    viewsNumber = re.sub(r'[^0-9]+', '', views)
+    if 'K' in views:
+        viewsNumber = re.sub(r'[^0-9]+', '', views)
+        viewsNumber = float(viewsNumber) * 1000
+    else:
+        viewsNumber = re.sub(r'[^0-9]+', '', views)
     return(viewsNumber)
 
 
@@ -332,8 +359,7 @@ def updateRedditStats(gameTitle, redditTitle, browser, delay):
 def finalScore(refined):
     finalScore = 0
     rows = refined.getRows()
-    print(rows)
-    for row in rows:
+    for row in rows[1:]:
         if row[0] != '':
         # Playtime Score
             if row[3] == '-' or row[3] == '':
@@ -375,17 +401,17 @@ def finalScore(refined):
                 elif hourPrice > 1.25:
                     finalScore += 0
             # twitchScore
-            if row[8] == 'unknown':
+            if row[8] == 'unknown' or row[8] == '-' or row[8] == '':
                 finalScore += 0
-            elif float(row[8]) <= 100:
+            elif float(row[8]) <= 500:
                 finalScore += 3
-            elif float(row[8]) > 100 and float(row[8]) <= 500:
-                finalScore += 6
             elif float(row[8]) > 500 and float(row[8]) <= 1000:
+                finalScore += 6
+            elif float(row[8]) > 1000 and float(row[8]) <= 10000:
                 finalScore += 9
-            elif float(row[8]) > 1000 and float(row[8]) <= 5000:
+            elif float(row[8]) > 10000 and float(row[8]) <= 20000:
                 finalScore += 12
-            elif float(row[8]) > 5000:
+            elif float(row[8]) > 20000:
                 finalScore += 15
             #redditstats
             if row[5] == '-' or row[5] == '':
